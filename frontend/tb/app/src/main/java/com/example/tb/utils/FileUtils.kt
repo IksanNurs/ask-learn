@@ -1,4 +1,4 @@
-package com.example.tbsewaku.utils
+package com.example.tb.utils
 
 import android.content.Context
 import android.net.Uri

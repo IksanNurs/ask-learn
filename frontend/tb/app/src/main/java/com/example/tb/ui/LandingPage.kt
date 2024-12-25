@@ -33,6 +33,10 @@ import com.example.tb.ui.theme.Routes
 import com.example.tb.ui.theme.biru1
 import com.example.tb.ui.theme.putih
 import com.example.tb.ui.theme.ungu1
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.platform.LocalContext
+import com.example.tb.data.preferences.SharedPrefsManager
+
 
 @Composable
 fun ButtonColumn(navController: NavController) {
@@ -48,7 +52,7 @@ fun ButtonColumn(navController: NavController) {
                 .width(250.dp)
                 .height(55.dp)
             ,
-            onClick = {navController.navigate(Routes.Register)},
+            onClick = {navController.navigate("register")},
             colors = ButtonDefaults.buttonColors(
                 containerColor  = ungu1
             )
@@ -69,7 +73,7 @@ fun ButtonColumn(navController: NavController) {
                 .width(250.dp)
                 .height(50.dp)
             ,
-            onClick = {navController.navigate(Routes.Login)},
+            onClick = {navController.navigate("login")},
             colors = ButtonDefaults.buttonColors(
                 containerColor  = biru1
             )
@@ -87,6 +91,17 @@ fun ButtonColumn(navController: NavController) {
 
 @Composable
 fun LandingPage(navController: NavHostController = rememberNavController()) {
+      val context = LocalContext.current
+    val sharedPrefsManager = SharedPrefsManager(context)
+
+    LaunchedEffect(Unit) {
+        val token = sharedPrefsManager.getToken()
+        if (token != null) {
+            navController.navigate("main") {
+                popUpTo("landing") { inclusive = true }
+            }
+        }
+    }
     val image = painterResource(id = R.drawable.landing)
     Box(
         modifier = Modifier
@@ -103,7 +118,7 @@ fun LandingPage(navController: NavHostController = rememberNavController()) {
             .height(320.dp)
             .background(Color.White, shape = RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp))
         ) {
-            ButtonColumn(navController = navController)
+            ButtonColumn(navController)
         }
     }
 }

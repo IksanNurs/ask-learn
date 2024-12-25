@@ -11,9 +11,12 @@ module.exports = (sequelize, DataTypes) => {
         onDelete: "CASCADE",
       });
       
-      Class.hasMany(models.Tutor, {
-        foreignKey: "class_id",
-        as: "tutors",
+
+      Class.belongsTo(models.Class, {
+        foreignKey: "category_id",
+        as: "category",
+        onUpdate: "CASCADE",
+        onDelete: "SET NULL",
       });
     }
   }
@@ -24,8 +27,23 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
         allowNull: true,
       },
+      category_id: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        references: {
+          model: 'Categorys',  // Assuming there's a 'Products' table with 'id' as the primary key
+          key: 'id',
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'SET NULL',
+        index: true,  // index for faster querying by class_id
+      },
       subject: {
         type: DataTypes.STRING,
+        allowNull: true,
+      },
+      level: {
+        type: DataTypes.INTEGER,
         allowNull: true,
       },
       topic: {
@@ -44,10 +62,13 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.TEXT,
         allowNull: true,
       },
-      date: {
+      start: {
         type: DataTypes.DATE,
         allowNull: true,
-        defaultValue: sequelize.literal('CURRENT_TIMESTAMP'),
+      },
+      end: {
+        type: DataTypes.DATE,
+        allowNull: true,
       }
     },
     {

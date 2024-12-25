@@ -17,6 +17,10 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: true,
       },
+      level: {
+        type: Sequelize.INTEGER,
+        allowNull: true,
+      },
       subject: {
         type: Sequelize.STRING,
         allowNull: true, 
@@ -28,6 +32,17 @@ module.exports = {
       location: {
         type: Sequelize.STRING,
         allowNull: true, 
+      },
+      category_id: {
+        type: Sequelize.INTEGER,
+        allowNull: true,
+        references: {
+          model: 'Categorys',  // Assuming there's a 'Products' table with 'id' as the primary key
+          key: 'id',
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'SET NULL',
+        index: true,  // index for faster querying by class_id
       },
       user_id: {
         type: Sequelize.INTEGER,
@@ -44,10 +59,13 @@ module.exports = {
         type: Sequelize.TEXT,
         allowNull: true,  // nullable because it can be nil in the struct
       },
-      date: {
+      start: {
         type: Sequelize.DATE,
         allowNull: true,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
+      },
+      end: {
+        type: Sequelize.DATE,
+        allowNull: true,
       },
     });
   },

@@ -1,4 +1,4 @@
-package com.example.tbsewaku.data.preferences
+package com.example.tb.data.preferences
 
 import android.content.Context
 import android.content.SharedPreferences

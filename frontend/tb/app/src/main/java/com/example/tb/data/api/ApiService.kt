@@ -1,4 +1,4 @@
-package com.example.tbsewaku.data.api
+package com.example.tb.data.api
 
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
@@ -22,6 +22,17 @@ interface ApiService {
         @Body body: Map<String, String>,  // Change from Map<String, Any?> to Map<String, String>
         @Header("Authorization") token: String
     ): Response<Map<String, Any>>
+
+@Multipart
+@PUT("users")
+suspend fun updateUser1(
+    @Part("username") username: RequestBody?,
+    @Part("email") email: RequestBody?,
+    @Part("nim") nim: RequestBody?,
+    @Part image: MultipartBody.Part?,
+    @Header("Authorization") token: String
+): Response<Map<String, Any>>
+
 
 @Multipart
 @POST("products")
@@ -102,6 +113,8 @@ suspend fun updateOrder(
         @Part("subject") subject: RequestBody,
         @Part("topic") topic: RequestBody,
         @Part("location") location: RequestBody,
+        @Part("start") start: RequestBody,
+        @Part("end") end: RequestBody,
         @Part khs: MultipartBody.Part?,
         @Header("Authorization") token: String
     ): Response<Map<String, Any>>

@@ -43,6 +43,7 @@ import com.example.tb.R
 import androidx.navigation.NavHostController
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
+import androidx.navigation.compose.rememberNavController
 
 @Composable
 fun UpcomingClass(
@@ -64,7 +65,7 @@ fun UpcomingClass(
                     Spacer(modifier = Modifier.padding(vertical = 5.dp))
                     LazyColumn {
                         item{
-                            UpcomingList()
+                            UpcomingList(navController)
                         }
                     }
                 }
@@ -134,7 +135,7 @@ fun MenuBarUpcoming(){
 }
 
 @Composable
-fun UpcomingList(){
+fun UpcomingList(navController: NavHostController){
     Card (
         modifier = Modifier
             .fillMaxWidth()
@@ -176,7 +177,7 @@ fun UpcomingList(){
                     )
                 }
                 Column {
-                    IconButton(onClick = { /*TODO*/ }) {
+                    IconButton(onClick = { navController.navigate("edit_class_screen") }) {
                         Image(
                             painter = painterResource(id = R.drawable.edit), 
                             contentDescription = null,
@@ -202,7 +203,7 @@ fun UpcomingList(){
                     )
                 ) {
                     Text(
-                        text = "Delete This Class",
+                        text = "Cancel Class",
                         fontWeight = FontWeight.SemiBold
                     )
                 }
@@ -216,7 +217,7 @@ fun UpcomingList(){
                     )
                 ) {
                     Text(
-                        text = "Class Detail",
+                        text = "Delete Class",
                         fontWeight = FontWeight.SemiBold
                     )
                 }

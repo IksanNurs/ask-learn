@@ -44,9 +44,7 @@ fun ClassDetail(
     navController: NavHostController = rememberNavController()
 ) {
     Scaffold (
-        topBar = {
-            TopLayoutDetail()
-        },
+
         content = { paddingValues ->
             Box (
                 modifier = Modifier
@@ -55,19 +53,17 @@ fun ClassDetail(
                     .background(color = Color.White)
             ){
                 Column {
-                    MenuBarDetail()
+
                     Spacer(modifier = Modifier.padding(vertical = 5.dp))
                     LazyColumn {
                         item{
-                            UpcomingList()
+                            UpcomingList(navController)
                         }
                     }
                 }
             }
         },
-        bottomBar = {
-            BottomLayoutDetail()
-        }
+
     )
 }
 

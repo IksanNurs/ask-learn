@@ -33,13 +33,37 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.example.tb.R
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material3.Icon
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedTextField
+import android.widget.Toast
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.platform.LocalContext
+import com.example.tb.data.api.RetrofitClient
+import kotlinx.coroutines.launch
+import com.example.tb.data.preferences.SharedPrefsManager
+
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Login(){
+fun Login(navController: NavHostController = rememberNavController()){
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    val scope = rememberCoroutineScope()
+    val context = LocalContext.current
+    val sharedPrefsManager = SharedPrefsManager(context)
 
     Box(
         modifier = Modifier
@@ -88,54 +112,111 @@ fun Login(){
                 modifier = Modifier.fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ){
-                TextField(
+                OutlinedTextField(
                     value = email,
                     onValueChange = { email = it },
-                    placeholder = {
-                        Text(text = "Email")
+                    label = { Text("Email") },
+                    leadingIcon = {
+                        Icon(
+                            imageVector = Icons.Default.Email,
+                            contentDescription = null,
+                            tint = Color(0xFF6D2B4F)
+                        )
                     },
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    shape = RoundedCornerShape(10.dp),
-                    colors = TextFieldDefaults.textFieldColors(
-                        focusedIndicatorColor = Color.Transparent,
-                        unfocusedIndicatorColor = Color.Transparent,
-                        containerColor = Color(0xFFEBEAEE)
-                    )
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        unfocusedContainerColor = Color(0xFFEBEAEE),
+                        focusedContainerColor = Color(0xFFEBEAEE),
+                        unfocusedBorderColor = Color.Transparent,
+                        focusedBorderColor = Color.Transparent
+                    ),
+                    shape = RoundedCornerShape(12.dp)
                 )
+
                 Spacer(modifier = Modifier.padding(vertical = 5.dp))
-                TextField(
+                CustomTextField(
                     value = password,
                     onValueChange = { password = it },
-                    placeholder = {
-                        Text(text = "Password")
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(10.dp),
-                    colors = TextFieldDefaults.textFieldColors(
-                        focusedIndicatorColor = Color.Transparent,
-                        unfocusedIndicatorColor = Color.Transparent,
-                        containerColor = Color(0xFFEBEAEE)
-                    )
+                    label = "Password",
+                    leadingIcon ={Icon(
+                        imageVector = Icons.Default.Lock,
+                        contentDescription = null,
+                        tint = Color(0xFF6D2B4F)
+                    )},
+                    isPassword = true
                 )
                 Spacer(modifier = Modifier.padding(vertical = 10.dp))
-                Row (
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.End
-                ){
-                    TextButton(onClick = { /*TODO*/ }) {
-                        Text(
-                            text = "Lupa password?",
-                            fontSize = 15.sp,
-                            fontWeight = FontWeight.SemiBold,
-                            color = Color(0xFF2F2C4F)
-                        )
-                    }
-                }
+//                Row (
+//                    modifier = Modifier.fillMaxWidth(),
+//                    horizontalArrangement = Arrangement.End
+//                ){
+//                    TextButton(onClick = { /*TODO*/ }) {
+//                        Text(
+//                            text = "Lupa password?",
+//                            fontSize = 15.sp,
+//                            fontWeight = FontWeight.SemiBold,
+//                            color = Color(0xFF2F2C4F)
+//                        )
+//                    }
+//                }
                 Spacer(modifier = Modifier.padding(vertical = 10.dp))
                 Button(
-                    onClick = { /*TODO*/ },
-                    modifier = Modifier.fillMaxWidth(),
+                        onClick = {
+                            when {
+                                email.isEmpty() || !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches() -> {
+                                    Toast.makeText(context, "Please enter a valid email", Toast.LENGTH_SHORT).show()
+                                }
+                                password.isEmpty() || password.length < 6 -> {
+                                    Toast.makeText(context, "Password must be at least 6 characters", Toast.LENGTH_SHORT).show()
+                                }
+                                else -> {
+                                    scope.launch {
+                                        try {
+                                            val result = RetrofitClient.apiService.login(
+                                                mapOf(
+                                                    "email" to email,
+                                                    "password" to password
+                                                )
+                                            )
+
+                                            if (result.isSuccessful) {
+                                                val responseBody = result.body()
+                                                val data = responseBody?.get("data") as? Map<String, Any>
+                                                val token = data?.get("token") as? String
+                                                val user = data?.get("user") as? Map<String, Any>
+
+                                                if (token != null && user != null) {
+                                                    val userId = (user["id"] as Double).toInt()
+                                                    val username = user["username"] as String
+
+                                                    // Save login data
+                                                    sharedPrefsManager.saveLoginData(token, userId, username)
+
+                                                    Toast.makeText(context, "Login successful!", Toast.LENGTH_SHORT).show()
+                                                    navController.navigate("main") {
+                                                        popUpTo("login") { inclusive = true }
+                                                    }
+                                                }
+                                            } else {
+                                                val errorBody = result.errorBody()?.string()
+                                                Toast.makeText(
+                                                    context,
+                                                    errorBody ?: "Login failed",
+                                                    Toast.LENGTH_LONG
+                                                ).show()
+                                            }
+                                        } catch (e: Exception) {
+                                            Toast.makeText(
+                                                context,
+                                                "Error: ${e.message}",
+                                                Toast.LENGTH_LONG
+                                            ).show()
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                            modifier = Modifier.fillMaxWidth(),
                     contentPadding = PaddingValues(vertical = 10.dp),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color(0xFF381224)
@@ -153,7 +234,7 @@ fun Login(){
                     horizontalArrangement = Arrangement.Center
                 ){
                     Text(text = "Don't have an account?")
-                    TextButton(onClick = { /*TODO*/ }) {
+                    TextButton(onClick = { navController.navigate("register") }) {
                         Text(
                             text = "Register",
                             color = Color(0xFF2F2C4F)

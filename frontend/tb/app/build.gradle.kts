@@ -77,4 +77,14 @@ dependencies {
     implementation(libs.androidx.compose.material3)
     implementation(libs.coil.compose)
     implementation(libs.logging.interceptor)
+
+    val nav_version = "2.8.0"
+
+    implementation("androidx.navigation:navigation-compose:$nav_version")
+    implementation("androidx.compose.material3:material3:1.2.0-alpha08")
+    implementation("androidx.compose.ui:ui:1.5.1")
+    implementation("androidx.compose.runtime:runtime:1.5.1")
+    implementation("androidx.compose.foundation:foundation:1.5.1")
+    implementation("androidx.compose.material:material-icons-extended:1.5.1")
+    implementation("io.coil-kt:coil-compose:2.4.0")
 }

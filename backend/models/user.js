@@ -6,6 +6,13 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       // Menambahkan relasi jika diperlukan
       // Misalnya User hasOne Lab, atau hubungan lainnya.
+    
+      User.belongsTo(models.Class, {
+        foreignKey: "category_id",
+        as: "category",
+        onUpdate: "CASCADE",
+        onDelete: "SET NULL",
+      });
     }
   }
 
@@ -21,15 +28,32 @@ module.exports = (sequelize, DataTypes) => {
         unique: true,
         allowNull: false,
       },
+      nim: {
+        type: DataTypes.STRING,
+        unique: true,
+        allowNull: false,
+      },
+      category_id: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        references: {
+          model: 'Categorys',  // Assuming there's a 'Products' table with 'id' as the primary key
+          key: 'id',
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'SET NULL',
+        index: true,  // index for faster querying by class_id
+      },
       password: {
         type: DataTypes.STRING,
         allowNull: false,
       },
-      address: {
+      // Add this field in User.init
+      image: {
         type: DataTypes.STRING,
         allowNull: true,
       },
- 
+
       
     },
     {

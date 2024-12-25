@@ -9,6 +9,8 @@ const createClass = async (req, res) => {
     const newClass = await Class.create({
       quota,
       subject,
+      start,
+      end,
       topic,
       location,
       user_id,
@@ -100,6 +102,8 @@ const updateClass = async (req, res) => {
     classData.subject = subject || classData.subject;
     classData.topic = topic || classData.topic;
     classData.location = location || classData.location;
+    classData.start = location || classData.start;
+    classData.end = location || classData.end;
     
     if (req.file) {
       classData.khs = req.file.filename;

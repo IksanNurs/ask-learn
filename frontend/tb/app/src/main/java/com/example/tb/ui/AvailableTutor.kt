@@ -2,6 +2,7 @@ package com.example.tb.ui
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -27,7 +28,11 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -40,37 +45,37 @@ import androidx.compose.ui.zIndex
 import com.example.tb.R
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.example.tb.ui.theme.ungu1
 
 
 @Composable
 fun AvailableTutor(
     navController: NavHostController = rememberNavController()
 ) {
+    var selectedTab by remember { mutableStateOf(0) }
     Scaffold (
         topBar = {
             TopLayoutTutor()
         },
         content = { paddingValues ->
-            Box (
+            Column(
                 modifier = Modifier
                     .padding(paddingValues)
                     .fillMaxSize()
                     .background(color = Color.White)
-            ){
-                Column {
-                    MenuBarTutor()
-                    Spacer(modifier = Modifier.padding(vertical = 5.dp))
-                    LazyColumn {
-                        item{
-                            TutorList()
-                        }
-                    }
+            ) {
+                TabBarTutor(
+                    selectedTab = selectedTab,
+                    onTabSelected = { selectedTab = it }
+                )
+
+                when (selectedTab) {
+                    0 -> TutorList(navController)
+                    1 -> ClassHistory()
                 }
             }
         },
-        bottomBar = {
-            BottomLayoutTutor()
-        }
+
     )
 
 }
@@ -92,6 +97,44 @@ fun TopLayoutTutor(){
             )
             Spacer(modifier = Modifier.width(15.dp))
         }
+    )
+}
+
+@Composable
+fun TabBarTutor(selectedTab: Int, onTabSelected: (Int) -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(Color.White)
+            .padding(vertical = 16.dp),
+        horizontalArrangement = Arrangement.SpaceEvenly
+    ) {
+        TabButton(
+            text = "Available Tutor",
+            selected = selectedTab == 0,
+            onClick = { onTabSelected(0) }
+        )
+        TabButton(
+            text = "Class History",
+            selected = selectedTab == 1,
+            onClick = { onTabSelected(1) }
+        )
+    }
+}
+
+@Composable
+private fun TabButton(
+    text: String,
+    selected: Boolean,
+    onClick: () -> Unit
+) {
+    Text(
+        text = text,
+        color = if (selected) ungu1 else Color.Black,
+        fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
+        modifier = Modifier
+            .clickable(onClick = onClick)
+            .padding(horizontal = 16.dp, vertical = 8.dp)
     )
 }
 
@@ -134,11 +177,14 @@ fun MenuBarTutor(){
 
 
 @Composable
-fun TutorList(){
+fun TutorList(navController: NavHostController) {
     Card (
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 5.dp, horizontal = 15.dp),
+            .padding(vertical = 5.dp, horizontal = 15.dp)
+            .clickable { 
+                navController.navigate("list_class_screen/Kim Jisoo/Information System")
+            },
         colors = CardDefaults.cardColors(
             containerColor = Color(0xFFEBEAEE)
         )
@@ -175,12 +221,14 @@ fun TutorList(){
                 }
             }
         }
-
     }
     Card (
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 5.dp, horizontal = 15.dp),
+            .padding(vertical = 5.dp, horizontal = 15.dp)
+            .clickable { 
+                navController.navigate("list_class_screen/Kim Jisoo/Information System")
+            },
         colors = CardDefaults.cardColors(
             containerColor = Color(0xFFEBEAEE)
         )
@@ -217,12 +265,14 @@ fun TutorList(){
                 }
             }
         }
-
     }
     Card (
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 5.dp, horizontal = 15.dp),
+            .padding(vertical = 5.dp, horizontal = 15.dp)
+            .clickable { 
+                navController.navigate("list_class_screen/Kim Jisoo/Information System")
+            },
         colors = CardDefaults.cardColors(
             containerColor = Color(0xFFEBEAEE)
         )
@@ -259,12 +309,14 @@ fun TutorList(){
                 }
             }
         }
-
     }
     Card (
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 5.dp, horizontal = 15.dp),
+            .padding(vertical = 5.dp, horizontal = 15.dp)
+            .clickable { 
+                navController.navigate("list_class_screen/Kim Jisoo/Information System")
+            },
         colors = CardDefaults.cardColors(
             containerColor = Color(0xFFEBEAEE)
         )
@@ -301,7 +353,6 @@ fun TutorList(){
                 }
             }
         }
-
     }
 }
 

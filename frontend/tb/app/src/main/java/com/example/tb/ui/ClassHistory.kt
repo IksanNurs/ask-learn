@@ -23,6 +23,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -42,15 +43,17 @@ import androidx.compose.ui.zIndex
 import com.example.tb.R
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+
 
 @Composable
 fun ClassHistory(
     navController: NavHostController = rememberNavController()
 ) {
     Scaffold (
-        topBar = {
-            TopLayoutHistory()
-        },
+
         content = { paddingValues ->
             Box (
                 modifier = Modifier
@@ -59,7 +62,6 @@ fun ClassHistory(
                     .background(color = Color.White)
             ){
                 Column {
-                    MenuBarHistory()
                     Spacer(modifier = Modifier.padding(vertical = 5.dp))
                     LazyColumn {
                         item{
@@ -69,9 +71,7 @@ fun ClassHistory(
                 }
             }
         },
-        bottomBar = {
-            BottomLayoutHistory()
-        }
+
     )
 }
 
@@ -133,27 +133,26 @@ fun TopLayoutHistory(){
 }
 
 @Composable
-fun HistoryList(){
-    Card (
+fun HistoryList() {
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        // Handle the selected file URI here
+    }
+
+    Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 5.dp, horizontal = 15.dp),
         colors = CardDefaults.cardColors(
             containerColor = Color(0xFFEBEAEE)
         )
-    ){
-        Column (
-            modifier = Modifier
-                .padding(20.dp)
-        ){
-            Row (
-                modifier = Modifier
-                    .fillMaxWidth()
-            ){
-                Column (
-                    modifier = Modifier
-                        .weight(1f)
-                ){
+    ) {
+        Column(
+            modifier = Modifier.padding(20.dp)
+        ) {
+            Row(modifier = Modifier.fillMaxWidth()) {
+                Column(modifier = Modifier.weight(1f)) {
                     Text(
                         text = "Membuat UI dengan jetpack compose",
                         fontSize = 13.sp,
@@ -164,8 +163,7 @@ fun HistoryList(){
                         text = "Pemrograman teknologi bergerak",
                         fontSize = 10.sp,
                         color = Color(0xFF2F2C4F),
-                        modifier = Modifier
-                            .padding(vertical = 2.dp)
+                        modifier = Modifier.padding(vertical = 2.dp)
                     )
                     Text(
                         text = "Wed, 27 November 2024  |  11.00 WIB",
@@ -182,6 +180,34 @@ fun HistoryList(){
                 fontWeight = FontWeight.SemiBold,
                 color = Color(0xFF07B76B)
             )
+
+            Button(
+                onClick = { launcher.launch("*/*") },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFF6D2B4F)
+                ),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 8.dp)
+            ) {
+                Row(
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_upload),
+                        contentDescription = "Upload",
+                        tint = Color.White,
+                        modifier = Modifier.size(20.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "Upload Tugas",
+                        color = Color.White,
+                        fontSize = 14.sp
+                    )
+                }
+            }
         }
     }
     Spacer(modifier = Modifier.padding(vertical = 5.dp))

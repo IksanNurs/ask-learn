@@ -11,7 +11,7 @@ var userRouter = require('./routes/user.route');
 var categoryRouter = require('./routes/category.route');
 var itemRouter = require('./routes/item.route');
 var classRouter = require('./routes/class.route');
-var tutorRouter = require('./routes/tutor.route');
+var orderRouter = require('./routes/order.route');
 
 var app = express();
 // CORS Configuration
@@ -38,7 +38,7 @@ app.use('/api', userRouter);
 app.use('/api', categoryRouter);
 app.use('/api', itemRouter);
 app.use('/api', classRouter);
-app.use('/api', tutorRouter);
+app.use('/api', orderRouter);
 app.use('/uploads', express.static('uploads'));
 
 app.use(function(err, req, res, next) {

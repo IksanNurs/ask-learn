@@ -1,7 +1,7 @@
-package com.example.tbsewaku.data.repository
+package com.example.tb.data.repository
 
-import com.example.tbsewaku.data.api.ApiService
-import com.example.tbsewaku.data.preferences.SharedPrefsManager
+import com.example.tb.data.api.ApiService
+import com.example.tb.data.preferences.SharedPrefsManager
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
@@ -92,6 +92,50 @@ class AuthRepository(
     }
     return null
 }
+
+suspend fun updatePassword(token: String, newPassword: String): Boolean {
+    return try {
+        val response = apiService.updateUser(
+            body = mapOf("password" to newPassword),
+            token = "Bearer $token"
+        )
+        response.isSuccessful
+    } catch (e: Exception) {
+        println("DEBUG: UpdatePassword exception - ${e.message}")
+        false
+    }
+}
+suspend fun updateUser(
+    token: String,
+    username: String?,
+    email: String?,
+    nim: String?,
+    imageFile: File?
+): Boolean {
+    return try {
+        val usernamePart = username?.let { RequestBody.create("text/plain".toMediaTypeOrNull(), it) }
+        val emailPart = email?.let { RequestBody.create("text/plain".toMediaTypeOrNull(), it) }
+        val nimPart = nim?.let { RequestBody.create("text/plain".toMediaTypeOrNull(), it) }
+        
+        val imagePart = imageFile?.let {
+            val requestFile = RequestBody.create("image/jpeg".toMediaTypeOrNull(), it)
+            MultipartBody.Part.createFormData("image", it.name, requestFile)
+        }
+
+        val response = apiService.updateUser1(
+            username = usernamePart,
+            email = emailPart,
+            nim = nimPart,
+            image = imagePart,
+            token = "Bearer $token"
+        )
+        response.isSuccessful
+    } catch (e: Exception) {
+        println("DEBUG: UpdateUser exception - ${e.message}")
+        false
+    }
+}
+
 
 suspend fun updateUser(
     token: String,
@@ -297,16 +341,18 @@ suspend fun createClass(
     subject: String,
     topic: String,
     location: String,
+    start: String,
+    end: String,
     khsFile: File?
 ): Boolean {
     return try {
-        // Create RequestBody parts
         val quotaPart = RequestBody.create("text/plain".toMediaTypeOrNull(), quota)
         val subjectPart = RequestBody.create("text/plain".toMediaTypeOrNull(), subject)
         val topicPart = RequestBody.create("text/plain".toMediaTypeOrNull(), topic)
         val locationPart = RequestBody.create("text/plain".toMediaTypeOrNull(), location)
+        val startPart = RequestBody.create("text/plain".toMediaTypeOrNull(), start)
+        val endPart = RequestBody.create("text/plain".toMediaTypeOrNull(), end)
 
-        // Create KHS part if file exists
         val khsPart = khsFile?.let {
             val requestFile = RequestBody.create("application/pdf".toMediaTypeOrNull(), it)
             MultipartBody.Part.createFormData("khs", it.name, requestFile)
@@ -317,17 +363,19 @@ suspend fun createClass(
             subject = subjectPart,
             topic = topicPart,
             location = locationPart,
+            start = startPart,
+            end = endPart,
             khs = khsPart,
             token = "Bearer $token"
         )
 
-        println("DEBUG: CreateClass response code - ${response.code()}")
         response.isSuccessful
     } catch (e: Exception) {
         println("DEBUG: CreateClass exception - ${e.message}")
         false
     }
 }
+
 
 suspend fun getClasses(token: String): List<Map<String, Any>>? {
     return try {

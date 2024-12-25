@@ -1,3 +1,4 @@
+const { Op } = require('sequelize');
 const { Item, User } = require('../models');
 const { validationResult } = require('express-validator');
 
@@ -7,6 +8,29 @@ const createItem = async (req, res) => {
   const user_id = req.userId;
 
   try {
+    // Check if item exists with same user_id and description
+    const existingItem = await Item.findOne({
+      where: {
+        user_id,
+        image: {
+          [Op.not]: null
+      },
+      }
+    });
+
+    if (existingItem) {
+      // Update existing item
+      existingItem.image = req.file ? req.file.filename : existingItem.image;
+      existingItem.description = description || existingItem.description;
+      await existingItem.save();
+
+      return res.status(200).json({
+        message: 'Item updated successfully',
+        data: existingItem,
+      });
+    }
+
+    // Create new item if doesn't exist
     const newItem = await Item.create({
       description,
       user_id,
@@ -19,9 +43,10 @@ const createItem = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'An error occurred while creating the item' });
+    res.status(500).json({ message: 'An error occurred while processing the item' });
   }
 };
+
 
 // Get all items
 const getItems = async (req, res) => {
@@ -30,7 +55,7 @@ const getItems = async (req, res) => {
       include: [{
         model: User,
         as: 'user',
-        attributes: ['id', 'username']
+        attributes: ['id', 'username', 'image']
       }]
     });
 
@@ -49,11 +74,12 @@ const getItemById = async (req, res) => {
   const itemId = req.params.id;
 
   try {
-    const item = await Item.findByPk(itemId, {
+    const item = await Item.findOne({
+      where: { id: itemId },
       include: [{
         model: User,
         as: 'user',
-        attributes: ['id', 'username']
+        attributes: ['id', 'username', 'image']
       }]
     });
 
@@ -70,6 +96,7 @@ const getItemById = async (req, res) => {
     res.status(500).json({ message: 'An error occurred while fetching the item' });
   }
 };
+
 
 // Update item
 const updateItem = async (req, res) => {

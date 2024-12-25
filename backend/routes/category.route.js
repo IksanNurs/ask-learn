@@ -4,7 +4,7 @@ const controller = require('../controller/category.controller');
 const authentication = require('../middleware/authentication');
 
 router.post('/categories', authentication, controller.createCategory);
-router.get('/categories', authentication, controller.getCategories);
+router.get('/categories', controller.getCategories);
 router.get('/categories/:id', authentication, controller.getCategoryById);
 router.put('/categories/:id', authentication, controller.updateCategory);
 router.delete('/categories/:id', authentication, controller.deleteCategory);

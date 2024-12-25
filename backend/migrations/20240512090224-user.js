@@ -23,10 +23,10 @@ module.exports = {
         },
         onUpdate: 'CASCADE',
         onDelete: 'SET NULL',
-        index: true,  // index for faster querying by product_id
+        index: true,  // index for faster querying by class_id
       },
       nim: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.STRING,
         unique: true,
         allowNull: true
       },
@@ -39,6 +39,10 @@ module.exports = {
       password: {
         type: Sequelize.STRING,
         allowNull: false,
+      },
+      image: {
+        type: Sequelize.STRING,
+        allowNull: true,
       },
     });
   },

@@ -60,9 +60,7 @@ fun CreateClass(
     navController: NavHostController = rememberNavController()
 ) {
     Scaffold (
-        topBar = {
-            TopLayout()
-        },
+
         content = { paddingValues ->
             Box (
                 modifier = Modifier
@@ -71,7 +69,6 @@ fun CreateClass(
                     .background(color = Color.White)
             ){
                 Column {
-                    MenuBar()
                     LazyColumn {
                         item{
                             FormTutor()
@@ -80,9 +77,7 @@ fun CreateClass(
                 }
             }
         },
-        bottomBar = {
-            BottomLayout()
-        }
+
     )
 
 }
@@ -107,42 +102,6 @@ fun TopLayout(){
     )
 }
 
-@Composable
-fun MenuBar(){
-    Box (
-        modifier = Modifier.background(color = Color.White)
-    ){
-        Row (
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 20.dp, bottom = 20.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ){
-            Column (
-                modifier = Modifier
-                    .weight(1f),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ){
-                Text(
-                    text = "Available Tutor",
-                    color = Color.Black,
-                    fontWeight = FontWeight(600)
-                )
-            }
-            Column (
-                modifier = Modifier.weight(1f),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ){
-                Text(
-                    text = "Create Class",
-                    color = Color(0xFF6D2B4F),
-                    fontWeight = FontWeight(600)
-                )
-            }
-        }
-    }
-}
 
 @ExperimentalMaterial3Api
 @Composable
