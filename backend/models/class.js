@@ -10,7 +10,10 @@ module.exports = (sequelize, DataTypes) => {
         onUpdate: "CASCADE",
         onDelete: "CASCADE",
       });
-      
+      Class.hasMany(models.Order, {
+        foreignKey: 'class_id',
+        as: 'orders'
+      });
 
       Class.belongsTo(models.Class, {
         foreignKey: "category_id",

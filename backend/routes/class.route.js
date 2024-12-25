@@ -35,5 +35,8 @@ router.get('/classes', authentication, controller.getClasses);
 router.get('/classes/:id', authentication, controller.getClassById);
 router.put('/classes/:id', authentication, upload.single('khs'), controller.updateClass);
 router.delete('/classes/:id', authentication, controller.deleteClass);
+router.get('/classes-user', authentication, controller.getClassesByUser);
+
 
 module.exports = router;
+

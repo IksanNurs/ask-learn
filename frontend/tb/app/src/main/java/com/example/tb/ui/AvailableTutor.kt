@@ -46,6 +46,14 @@ import com.example.tb.R
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.tb.ui.theme.ungu1
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.foundation.lazy.items
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.runtime.rememberCoroutineScope
+import com.example.tb.data.api.RetrofitClient
+import com.example.tb.data.preferences.SharedPrefsManager
+import com.example.tb.data.repository.AuthRepository
+import kotlinx.coroutines.launch
 
 
 @Composable
@@ -175,187 +183,75 @@ fun MenuBarTutor(){
     }
 }
 
+  @Composable
+  fun TutorList(navController: NavHostController) {
+      val context = LocalContext.current
+      val scope = rememberCoroutineScope()
+      val sharedPrefsManager = SharedPrefsManager(context)
+      val authRepository = AuthRepository(RetrofitClient.apiService, sharedPrefsManager)
+      val tutors = remember { mutableStateOf<List<Map<String, Any>>?>(null) }
 
-@Composable
-fun TutorList(navController: NavHostController) {
-    Card (
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 5.dp, horizontal = 15.dp)
-            .clickable { 
-                navController.navigate("list_class_screen/Kim Jisoo/Information System")
-            },
-        colors = CardDefaults.cardColors(
-            containerColor = Color(0xFFEBEAEE)
-        )
-    ){
-        Row (
-            modifier = Modifier
-                .padding(15.dp),
-            horizontalArrangement = Arrangement.Center
-        ){
-            Column {
-                Image(
-                    painter = painterResource(id = R.drawable.jisoo),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .size(50.dp)
-                        .clip(RoundedCornerShape(100))
-                )
-            }
-            Column (
-                modifier = Modifier
-                    .padding(start = 20.dp)
-            ){
-                Column {
-                    Text(
-                        text = "Kim Jisoo",
-                        fontSize = 15.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color(0xFF2F2C4F)
-                    )
-                    Text(
-                        text = "Information System",
-                        color = Color(0xFF2F2C4F)
-                    )
-                }
-            }
-        }
-    }
-    Card (
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 5.dp, horizontal = 15.dp)
-            .clickable { 
-                navController.navigate("list_class_screen/Kim Jisoo/Information System")
-            },
-        colors = CardDefaults.cardColors(
-            containerColor = Color(0xFFEBEAEE)
-        )
-    ){
-        Row (
-            modifier = Modifier
-                .padding(15.dp),
-            horizontalArrangement = Arrangement.Center
-        ){
-            Column {
-                Image(
-                    painter = painterResource(id = R.drawable.jisoo),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .size(50.dp)
-                        .clip(RoundedCornerShape(100))
-                )
-            }
-            Column (
-                modifier = Modifier
-                    .padding(start = 20.dp)
-            ){
-                Column {
-                    Text(
-                        text = "Kim Jisoo",
-                        fontSize = 15.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color(0xFF2F2C4F)
-                    )
-                    Text(
-                        text = "Information System",
-                        color = Color(0xFF2F2C4F)
-                    )
-                }
-            }
-        }
-    }
-    Card (
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 5.dp, horizontal = 15.dp)
-            .clickable { 
-                navController.navigate("list_class_screen/Kim Jisoo/Information System")
-            },
-        colors = CardDefaults.cardColors(
-            containerColor = Color(0xFFEBEAEE)
-        )
-    ){
-        Row (
-            modifier = Modifier
-                .padding(15.dp),
-            horizontalArrangement = Arrangement.Center
-        ){
-            Column {
-                Image(
-                    painter = painterResource(id = R.drawable.jisoo),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .size(50.dp)
-                        .clip(RoundedCornerShape(100))
-                )
-            }
-            Column (
-                modifier = Modifier
-                    .padding(start = 20.dp)
-            ){
-                Column {
-                    Text(
-                        text = "Kim Jisoo",
-                        fontSize = 15.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color(0xFF2F2C4F)
-                    )
-                    Text(
-                        text = "Information System",
-                        color = Color(0xFF2F2C4F)
-                    )
-                }
-            }
-        }
-    }
-    Card (
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 5.dp, horizontal = 15.dp)
-            .clickable { 
-                navController.navigate("list_class_screen/Kim Jisoo/Information System")
-            },
-        colors = CardDefaults.cardColors(
-            containerColor = Color(0xFFEBEAEE)
-        )
-    ){
-        Row (
-            modifier = Modifier
-                .padding(15.dp),
-            horizontalArrangement = Arrangement.Center
-        ){
-            Column {
-                Image(
-                    painter = painterResource(id = R.drawable.jisoo),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .size(50.dp)
-                        .clip(RoundedCornerShape(100))
-                )
-            }
-            Column (
-                modifier = Modifier
-                    .padding(start = 20.dp)
-            ){
-                Column {
-                    Text(
-                        text = "Kim Jisoo",
-                        fontSize = 15.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color(0xFF2F2C4F)
-                    )
-                    Text(
-                        text = "Information System",
-                        color = Color(0xFF2F2C4F)
-                    )
-                }
-            }
-        }
-    }
+      LaunchedEffect(Unit) {
+          scope.launch {
+              val token = sharedPrefsManager.getToken() ?: ""
+              tutors.value = authRepository.getClassesByUser(token)
+          }
+      }
+
+      LazyColumn {
+          tutors.value?.let { tutorsList ->
+              items(tutorsList.size) { index ->
+                  val tutor = tutorsList[index]
+                  val user = tutor["user"] as Map<String, Any>
+                  val category = user["category"] as Map<String, Any>
+                
+                  Card(
+                      modifier = Modifier
+                          .fillMaxWidth()
+                          .padding(vertical = 5.dp, horizontal = 15.dp)
+                          .clickable {
+    navController.navigate("list_class_screen/${user["username"]}/${category["name"]}/${user["id"]}")
 }
-
+,
+                      colors = CardDefaults.cardColors(
+                          containerColor = Color(0xFFEBEAEE)
+                      )
+                  ) {
+                      Row(
+                          modifier = Modifier.padding(15.dp),
+                          horizontalArrangement = Arrangement.Center
+                      ) {
+                          Column {
+                              Image(
+                                  painter = painterResource(id = R.drawable.jisoo),
+                                  contentDescription = null,
+                                  modifier = Modifier
+                                      .size(50.dp)
+                                      .clip(RoundedCornerShape(100))
+                              )
+                          }
+                          Column(
+                              modifier = Modifier.padding(start = 20.dp)
+                          ) {
+                              Column {
+                                  Text(
+                                      text = user["username"] as String,
+                                      fontSize = 15.sp,
+                                      fontWeight = FontWeight.Bold,
+                                      color = Color(0xFF2F2C4F)
+                                  )
+                                  Text(
+                                      text = category["name"] as String,
+                                      color = Color(0xFF2F2C4F)
+                                  )
+                              }
+                          }
+                      }
+                  }
+              }
+          }
+      }
+  }
 @Composable
 fun BottomLayoutTutor(){
     Box(modifier = Modifier.fillMaxWidth()){

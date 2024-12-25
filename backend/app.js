@@ -12,6 +12,7 @@ var categoryRouter = require('./routes/category.route');
 var itemRouter = require('./routes/item.route');
 var classRouter = require('./routes/class.route');
 var orderRouter = require('./routes/order.route');
+var bankSoalRouter = require('./routes/banksoal.route');
 
 var app = express();
 // CORS Configuration
@@ -39,8 +40,8 @@ app.use('/api', categoryRouter);
 app.use('/api', itemRouter);
 app.use('/api', classRouter);
 app.use('/api', orderRouter);
+app.use('/api', bankSoalRouter);
 app.use('/uploads', express.static('uploads'));
-
 app.use(function(err, req, res, next) {
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};

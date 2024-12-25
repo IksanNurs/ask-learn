@@ -21,6 +21,7 @@ import com.example.tb.ui.ProfileScreen
 import com.example.tb.ui.AvailableTutor
 import com.example.tb.ui.ClassDetail
 import com.example.tb.ui.ClassHistory
+import com.example.tb.ui.CreateBankSoal
 import com.example.tb.ui.CreateClass
 import com.example.tb.ui.EditClass
 import com.example.tb.ui.EditUpcomingClass
@@ -39,7 +40,7 @@ fun NavGraph(navController: NavHostController, modifier: Modifier = Modifier) {
         composable("register") { Register(navController) }
         composable("main") { MainScreen(navController) }
         composable("availableTutor") { AvailableTutor(navController) }
-        composable("classDetail") { ClassDetail() }
+        composable("classDetail") { ClassDetail(navController) }
         composable("classHistory") { ClassHistory() }
         composable("createClass") { CreateClass() }
         composable("editUpcomingClass") { EditUpcomingClass() }
@@ -48,6 +49,8 @@ fun NavGraph(navController: NavHostController, modifier: Modifier = Modifier) {
         composable("editProfile") { EditProfileScreen(navController) }
         composable("changePassword") { ChangePasswordScreen(navController) }
         composable("myClass") { MyClassScreen(navController) }
+        composable("add_bank_soal") { CreateBankSoal(navController) }
+
  composable(
     route = "add_post?id={id}&description={description}&image={image}",
     arguments = listOf(
@@ -65,34 +68,51 @@ fun NavGraph(navController: NavHostController, modifier: Modifier = Modifier) {
 }
 
 
-        composable("edit_class_screen") {
-            EditClass(navController)
-        }
-           composable(
-        route = "list_class_screen/{tutorName}/{department}",
-        arguments = listOf(
-            navArgument("tutorName") { type = NavType.StringType },
-            navArgument("department") { type = NavType.StringType }
-        )
-    ) { backStackEntry ->
-        ListClassScreen(
-            navController = navController,
-            tutorName = backStackEntry.arguments?.getString("tutorName") ?: "",
-            department = backStackEntry.arguments?.getString("department") ?: ""
-        )
-    }
-        composable(
-            route = "view_class_screen/{className}/{subject}",
-            arguments = listOf(
-                navArgument("className") { type = NavType.StringType },
-                navArgument("subject") { type = NavType.StringType }
-            )
-        ) { backStackEntry ->
-            ViewClassScreen(
-                navController = navController,
-                className = backStackEntry.arguments?.getString("className") ?: "",
-                subject = backStackEntry.arguments?.getString("subject") ?: ""
-            )
-        }
+      composable(
+    route = "edit_class_screen/{classId}",
+    arguments = listOf(navArgument("classId") { type = NavType.IntType })
+) { backStackEntry ->
+    val classId = backStackEntry.arguments?.getInt("classId") ?: -1
+    EditClass(navController = navController, classId = classId)
+}
+
+     composable(
+    route = "list_class_screen/{tutorName}/{department}/{userId}",
+    arguments = listOf(
+        navArgument("tutorName") { type = NavType.StringType },
+        navArgument("department") { type = NavType.StringType },
+        navArgument("userId") { type = NavType.StringType }
+    )
+) { backStackEntry ->
+    ListClassScreen(
+        navController = navController,
+        tutorName = backStackEntry.arguments?.getString("tutorName") ?: "",
+        department = backStackEntry.arguments?.getString("department") ?: "",
+        userId = backStackEntry.arguments?.getString("userId") ?: ""
+    )
+}
+
+    composable(
+    route = "view_class_screen/{className}/{subject}/{start}/{end}/{location}/{id}",
+    arguments = listOf(
+        navArgument("className") { type = NavType.StringType },
+        navArgument("subject") { type = NavType.StringType },
+        navArgument("start") { type = NavType.StringType },
+        navArgument("end") { type = NavType.StringType },
+        navArgument("location") { type = NavType.StringType },
+        navArgument("id") { type = NavType.StringType }
+    )
+) { backStackEntry ->
+    ViewClassScreen(
+        navController = navController,
+        className = backStackEntry.arguments?.getString("className") ?: "",
+        subject = backStackEntry.arguments?.getString("subject") ?: "",
+        start = backStackEntry.arguments?.getString("start") ?: "",
+        end = backStackEntry.arguments?.getString("end") ?: "",
+        location = backStackEntry.arguments?.getString("location") ?: "",
+        id = backStackEntry.arguments?.getString("id") ?: ""
+    )
+}
+
     }
 }

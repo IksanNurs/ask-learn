@@ -4,10 +4,7 @@ const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class User extends Model {
     static associate(models) {
-      // Menambahkan relasi jika diperlukan
-      // Misalnya User hasOne Lab, atau hubungan lainnya.
-    
-      User.belongsTo(models.Class, {
+      User.belongsTo(models.Category, {
         foreignKey: "category_id",
         as: "category",
         onUpdate: "CASCADE",

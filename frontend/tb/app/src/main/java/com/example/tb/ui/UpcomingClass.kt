@@ -1,5 +1,6 @@
 package com.example.tb.ui
 
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -29,6 +30,8 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -42,8 +45,13 @@ import androidx.compose.ui.zIndex
 import com.example.tb.R
 import androidx.navigation.NavHostController
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.compose.rememberNavController
+import com.example.tb.data.api.RetrofitClient
+import com.example.tb.data.preferences.SharedPrefsManager
+import com.example.tb.data.repository.AuthRepository
+import kotlinx.coroutines.launch
 
 @Composable
 fun UpcomingClass(
@@ -133,100 +141,136 @@ fun MenuBarUpcoming(){
         }
     }
 }
+  @Composable
+  fun UpcomingList(navController: NavHostController) {
+      val context = LocalContext.current
+      val scope = rememberCoroutineScope()
+      val sharedPrefsManager = SharedPrefsManager(context)
+      val authRepository = AuthRepository(RetrofitClient.apiService, sharedPrefsManager)
+      val classes = remember { mutableStateOf<List<Map<String, Any>>?>(null) }
 
-@Composable
-fun UpcomingList(navController: NavHostController){
-    Card (
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 5.dp, horizontal = 15.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = Color(0xFFEBEAEE)
-        )
-    ){
-        Column (
-            modifier = Modifier
-                .padding(20.dp)
-        ){
-            Row (
-                modifier = Modifier
-                    .fillMaxWidth()
-            ){
-                Column (
-                    modifier = Modifier
-                        .weight(1f)
-                ){
-                    Text(
-                        text = "Membuat UI dengan jetpack compose",
-                        fontSize = 13.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color(0xFF2F2C4F)
-                    )
-                    Text(
-                        text = "Pemrograman teknologi bergerak",
-                        fontSize = 10.sp,
-                        color = Color(0xFF2F2C4F),
-                        modifier = Modifier
-                            .padding(vertical = 2.dp)
-                    )
-                    Text(
-                        text = "Wed, 27 November 2024  |  11.00 WIB",
-                        fontSize = 10.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        color = Color(0xFF6D2B4F)
-                    )
-                }
-                Column {
-                    IconButton(onClick = { navController.navigate("edit_class_screen") }) {
-                        Image(
-                            painter = painterResource(id = R.drawable.edit), 
-                            contentDescription = null,
-                            modifier = Modifier
-                                .size(15.dp),
-                            alignment = Alignment.TopEnd
-                        )
-                    }
-                }
-            }
-            Spacer(modifier = Modifier.padding(vertical = 5.dp))
-            Row (
-                modifier = Modifier
-                    .fillMaxWidth()
-            ){
-                Button(
-                    onClick = { /*TODO*/ },
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(end = 2.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF6D2B4F)
-                    )
-                ) {
-                    Text(
-                        text = "Cancel Class",
-                        fontWeight = FontWeight.SemiBold
-                    )
-                }
-                Button(
-                    onClick = { /*TODO*/ },
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(start = 2.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF2F2C4F)
-                    )
-                ) {
-                    Text(
-                        text = "Delete Class",
-                        fontWeight = FontWeight.SemiBold
-                    )
-                }
-            }
-        }
-    }
-}
+      fun refreshClasses() {
+          scope.launch {
+              val token = sharedPrefsManager.getToken() ?: ""
+              classes.value = authRepository.getClasses(token)
+          }
+      }
 
-@Composable
+      LaunchedEffect(Unit) {
+          refreshClasses()
+      }
+
+      classes.value?.let { classesList ->
+          LazyColumn(
+              modifier = Modifier.fillMaxSize()
+          ) {
+              items(classesList.size) { index ->
+                  val classItem = classesList[index]
+                  Card(
+                      modifier = Modifier
+                          .fillMaxWidth()
+                          .padding(vertical = 5.dp, horizontal = 15.dp),
+                      colors = CardDefaults.cardColors(
+                          containerColor = Color(0xFFEBEAEE)
+                      )
+                  ) {
+                      Column(
+                          modifier = Modifier.padding(20.dp)
+                      ) {
+                          Row(
+                              modifier = Modifier.fillMaxWidth()
+                          ) {
+                              Column(
+                                  modifier = Modifier.weight(1f)
+                              ) {
+                                  Text(
+                                      text = classItem["topic"] as? String ?: "",
+                                      fontSize = 13.sp,
+                                      fontWeight = FontWeight.Bold,
+                                      color = Color(0xFF2F2C4F)
+                                  )
+                                  Text(
+                                      text = classItem["subject"] as? String ?: "",
+                                      fontSize = 10.sp,
+                                      color = Color(0xFF2F2C4F),
+                                      modifier = Modifier.padding(vertical = 2.dp)
+                                  )
+                                  Text(
+                                      text = "${classItem["start"] as? String} | ${classItem["end"] as? String}",
+                                      fontSize = 10.sp,
+                                      fontWeight = FontWeight.SemiBold,
+                                      color = Color(0xFF6D2B4F)
+                                  )
+                              }
+                              Column {
+                            IconButton(onClick = { 
+                            val classId = (classItem["id"] as Double).toInt()
+                            navController.navigate("edit_class_screen/$classId") 
+                        }) {
+                            Image(
+                                painter = painterResource(id = R.drawable.edit), 
+                                contentDescription = null,
+                                modifier = Modifier.size(15.dp),
+                                alignment = Alignment.TopEnd
+                            )
+                        }
+
+                              }
+                          }
+                          Spacer(modifier = Modifier.padding(vertical = 5.dp))
+                          Row (
+                              modifier = Modifier
+                                  .fillMaxWidth()
+                          ){
+                              Button(
+                                  onClick = { 
+                                      Toast.makeText(context, "Class cancel successfully", Toast.LENGTH_SHORT).show()
+                                   },
+                                  modifier = Modifier
+                                      .weight(1f)
+                                      .padding(end = 2.dp),
+                                  colors = ButtonDefaults.buttonColors(
+                                      containerColor = Color(0xFF6D2B4F)
+                                  )
+                              ) {
+                                  Text(
+                                      text = "Cancel Class",
+                                      fontWeight = FontWeight.SemiBold
+                                  )
+                              }
+                              Button(
+                                  onClick = {
+                                      scope.launch {
+                                          val token = sharedPrefsManager.getToken() ?: ""
+                                          val classId = (classItem["id"] as Double).toInt()
+                                          val success = authRepository.deleteClass(token, classId)
+                                          if (success) {
+                                              Toast.makeText(context, "Class deleted successfully", Toast.LENGTH_SHORT).show()
+                                              refreshClasses()
+                                          } else {
+                                              Toast.makeText(context, "Failed to delete class", Toast.LENGTH_SHORT).show()
+                                          }
+                                      }
+                                  },
+                                  modifier = Modifier
+                                      .weight(1f)
+                                      .padding(start = 2.dp),
+                                  colors = ButtonDefaults.buttonColors(
+                                      containerColor = Color(0xFF2F2C4F)
+                                  )
+                              ) {
+                                  Text(
+                                      text = "Delete Class",
+                                      fontWeight = FontWeight.SemiBold
+                                  )
+                              }
+                          }
+                      }
+                  }
+              }
+          }
+      }
+  }@Composable
 fun BottomLayoutUpcoming(){
     Box(modifier = Modifier.fillMaxWidth()){
         Row (

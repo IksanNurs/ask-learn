@@ -46,10 +46,18 @@ suspend fun createProduct(
     @Header("Authorization") token: String
 ): Response<Map<String, Any>>
 
+
+@POST("orders")
+suspend fun createOrder(
+    @Body body: Map<String, String>,  // Changed from Map<String, Any>
+    @Header("Authorization") token: String
+): Response<Map<String, Any>>
+
+
 @GET("orders")
 suspend fun getOrders(
     @Header("Authorization") token: String,
-    @Query("status") status: Int? = null
+    @Query("class_id") class_id: String? = null
 ): Response<Map<String, Any>>
 
 @GET("products")
@@ -120,10 +128,12 @@ suspend fun updateOrder(
         @Header("Authorization") token: String
     ): Response<Map<String, Any>>
 
-    @GET("classes")
-    suspend fun getClasses(
-        @Header("Authorization") token: String
-    ): Response<Map<String, Any>>
+   @GET("classes")
+suspend fun getClasses(
+    @Header("Authorization") token: String,
+    @Query("user_id") userId: String? = null
+): Response<Map<String, Any>>
+
 
     @GET("classes/{id}")
     suspend fun getClassById(
@@ -142,6 +152,22 @@ suspend fun updateOrder(
         @Part khs: MultipartBody.Part?,
         @Header("Authorization") token: String
     ): Response<Map<String, Any>>
+
+@GET("classes-user")
+suspend fun getClassesByUser(
+    @Header("Authorization") token: String
+): Response<Map<String, Any>>
+
+
+@Multipart
+@POST("banksoal")
+suspend fun createBankSoal(
+    @Part("category_id") categoryId: RequestBody,
+    @Part("level") level: RequestBody,
+    @Part file: MultipartBody.Part,
+    @Header("Authorization") token: String
+): Response<Map<String, Any>>
+
 
     @DELETE("classes/{id}")
     suspend fun deleteClass(

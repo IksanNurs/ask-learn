@@ -209,9 +209,9 @@ suspend fun createProduct(
 
 
 
-suspend fun getOrders(token: String, status: Int? = null): List<Map<String, Any>>? {
+suspend fun getOrders(token: String, class_id: String? = null): List<Map<String, Any>>? {
     try {
-        val response = apiService.getOrders("Bearer $token", status)
+        val response = apiService.getOrders("Bearer $token", class_id)
         if (response.isSuccessful) {
             val responseBody = response.body()
             val data = responseBody?.get("data") as? List<Map<String, Any>>
@@ -379,9 +379,28 @@ suspend fun createClass(
     }
 }
 
-suspend fun getClasses(token: String): List<Map<String, Any>>? {
+suspend fun createOrder(token: String, classId: String): Boolean {
     return try {
-        val response = apiService.getClasses("Bearer $token")
+        val response = apiService.createOrder(
+            body = mapOf("class_id" to classId),
+            token = "Bearer $token"
+        )
+        println("DEBUG: CreateOrder response code - ${response.code()}")
+        println("DEBUG: CreateOrder response body - ${response.body()}")
+        response.isSuccessful
+    } catch (e: Exception) {
+        println("DEBUG: CreateOrder exception - ${e.message}")
+        false
+    }
+}
+
+
+
+
+
+suspend fun getClasses(token: String, userId: String? = null): List<Map<String, Any>>? {
+    return try {
+        val response = apiService.getClasses("Bearer $token", userId)
         if (response.isSuccessful) {
             val responseBody = response.body()
             val data = responseBody?.get("data") as? List<Map<String, Any>>
@@ -391,9 +410,7 @@ suspend fun getClasses(token: String): List<Map<String, Any>>? {
         println("DEBUG: GetClasses exception - ${e.message}")
         null
     }
-}
-
-suspend fun getClassById(token: String, classId: Int): Map<String, Any>? {
+}suspend fun getClassById(token: String, classId: Int): Map<String, Any>? {
     return try {
         val response = apiService.getClassById(classId, "Bearer $token")
         if (response.isSuccessful) {
@@ -458,6 +475,47 @@ suspend fun deleteClass(token: String, classId: Int): Boolean {
         false
     }
 }
+
+suspend fun createBankSoal(
+    token: String,
+    categoryId: String,
+    level: String,
+    file: File
+): Boolean {
+    return try {
+        val categoryIdPart = RequestBody.create("text/plain".toMediaTypeOrNull(), categoryId)
+        val levelPart = RequestBody.create("text/plain".toMediaTypeOrNull(), level)
+        val requestFile = RequestBody.create("application/pdf".toMediaTypeOrNull(), file)
+        val filePart = MultipartBody.Part.createFormData("file", file.name, requestFile)
+
+        val response = apiService.createBankSoal(
+            categoryId = categoryIdPart,
+            level = levelPart,
+            file = filePart,
+            token = "Bearer $token"
+        )
+
+        response.isSuccessful
+    } catch (e: Exception) {
+        println("DEBUG: CreateBankSoal exception - ${e.message}")
+        false
+    }
+}
+
+suspend fun getClassesByUser(token: String): List<Map<String, Any>>? {
+    return try {
+        val response = apiService.getClassesByUser("Bearer $token")
+        if (response.isSuccessful) {
+            val responseBody = response.body()
+            val data = responseBody?.get("data") as? List<Map<String, Any>>
+            data
+        } else null
+    } catch (e: Exception) {
+        println("DEBUG: GetClassesByUser exception - ${e.message}")
+        null
+    }
+}
+
 
 suspend fun createTutor(token: String, name: String, classId: Int): Boolean {
     return try {

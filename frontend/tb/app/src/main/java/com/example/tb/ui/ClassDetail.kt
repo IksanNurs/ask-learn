@@ -41,7 +41,7 @@ import androidx.navigation.compose.rememberNavController
 
 @Composable
 fun ClassDetail(
-    navController: NavHostController = rememberNavController()
+   navController: NavHostController= rememberNavController()
 ) {
     Scaffold (
 
@@ -55,11 +55,9 @@ fun ClassDetail(
                 Column {
 
                     Spacer(modifier = Modifier.padding(vertical = 5.dp))
-                    LazyColumn {
-                        item{
+                   
                             UpcomingList(navController)
-                        }
-                    }
+                   
                 }
             }
         },
@@ -224,8 +222,3 @@ fun BottomLayoutDetail(){
     }
 }
 
-@Preview(showBackground = true, showSystemUi = true)
-@Composable
-fun ClassDetailPreview() {
-    ClassDetail()
-}

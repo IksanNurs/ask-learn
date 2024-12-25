@@ -46,6 +46,15 @@ import androidx.navigation.compose.rememberNavController
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.platform.LocalContext
+import com.example.tb.data.api.RetrofitClient
+import com.example.tb.data.preferences.SharedPrefsManager
+import com.example.tb.data.repository.AuthRepository
+import kotlinx.coroutines.launch
 
 
 @Composable
@@ -63,12 +72,10 @@ fun ClassHistory(
             ){
                 Column {
                     Spacer(modifier = Modifier.padding(vertical = 5.dp))
-                    LazyColumn {
-                        item{
+                   
                             HistoryList()
-                        }
-                    }
-                }
+                    
+                                    }
             }
         },
 
@@ -131,138 +138,82 @@ fun TopLayoutHistory(){
         }
     )
 }
+  @Composable
+  fun HistoryList() {
+      val context = LocalContext.current
+      val scope = rememberCoroutineScope()
+      val sharedPrefsManager = SharedPrefsManager(context)
+      val authRepository = AuthRepository(RetrofitClient.apiService, sharedPrefsManager)
+      val orders = remember { mutableStateOf<List<Map<String, Any>>?>(null) }
 
-@Composable
-fun HistoryList() {
-    val launcher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetContent()
-    ) { uri: Uri? ->
-        // Handle the selected file URI here
-    }
+      LaunchedEffect(Unit) {
+          scope.launch {
+              val token = sharedPrefsManager.getToken() ?: ""
+              orders.value = authRepository.getOrders(token)
+          }
+      }
 
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 5.dp, horizontal = 15.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = Color(0xFFEBEAEE)
-        )
-    ) {
-        Column(
-            modifier = Modifier.padding(20.dp)
-        ) {
-            Row(modifier = Modifier.fillMaxWidth()) {
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = "Membuat UI dengan jetpack compose",
-                        fontSize = 13.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color(0xFF2F2C4F)
-                    )
-                    Text(
-                        text = "Pemrograman teknologi bergerak",
-                        fontSize = 10.sp,
-                        color = Color(0xFF2F2C4F),
-                        modifier = Modifier.padding(vertical = 2.dp)
-                    )
-                    Text(
-                        text = "Wed, 27 November 2024  |  11.00 WIB",
-                        fontSize = 10.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        color = Color(0xFF6D2B4F)
-                    )
-                }
-            }
-            Spacer(modifier = Modifier.padding(vertical = 8.dp))
-            Text(
-                text = "Well done! Your class is completed",
-                fontSize = 12.sp,
-                fontWeight = FontWeight.SemiBold,
-                color = Color(0xFF07B76B)
-            )
+      LazyColumn {
+          orders.value?.let { ordersList ->
+              items(ordersList.size) { index ->
+                  val order = ordersList[index]
+                  val classData = order["class"] as? Map<String, Any>
+                  val status = (order["status"] as? Double)?.toInt() ?: 0
 
-            Button(
-                onClick = { launcher.launch("*/*") },
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF6D2B4F)
-                ),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 8.dp)
-            ) {
-                Row(
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_upload),
-                        contentDescription = "Upload",
-                        tint = Color.White,
-                        modifier = Modifier.size(20.dp)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = "Upload Tugas",
-                        color = Color.White,
-                        fontSize = 14.sp
-                    )
-                }
-            }
-        }
-    }
-    Spacer(modifier = Modifier.padding(vertical = 5.dp))
-    Card (
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 5.dp, horizontal = 15.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = Color(0xFFEBEAEE)
-        )
-    ){
-        Column (
-            modifier = Modifier
-                .padding(20.dp)
-        ){
-            Row (
-                modifier = Modifier
-                    .fillMaxWidth()
-            ){
-                Column (
-                    modifier = Modifier
-                        .weight(1f)
-                ){
-                    Text(
-                        text = "Membuat UI dengan jetpack compose",
-                        fontSize = 13.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color(0xFF2F2C4F)
-                    )
-                    Text(
-                        text = "Pemrograman teknologi bergerak",
-                        fontSize = 10.sp,
-                        color = Color(0xFF2F2C4F),
-                        modifier = Modifier
-                            .padding(vertical = 2.dp)
-                    )
-                    Text(
-                        text = "Wed, 27 November 2024  |  11.00 WIB",
-                        fontSize = 10.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        color = Color(0xFF6D2B4F)
-                    )
-                }
-            }
-            Spacer(modifier = Modifier.padding(vertical = 8.dp))
-            Text(
-                text = "You canceled this class",
-                fontSize = 12.sp,
-                fontWeight = FontWeight.SemiBold,
-                color = Color(0xFFE50000)
-            )
-        }
-    }
-}
-
+                  Card(
+                      modifier = Modifier
+                          .fillMaxWidth()
+                          .padding(vertical = 5.dp, horizontal = 15.dp),
+                      colors = CardDefaults.cardColors(
+                          containerColor = Color(0xFFEBEAEE)
+                      )
+                  ) {
+                      Column(
+                          modifier = Modifier.padding(20.dp)
+                      ) {
+                          Row(modifier = Modifier.fillMaxWidth()) {
+                              Column(modifier = Modifier.weight(1f)) {
+                                  Text(
+                                      text = classData?.get("topic") as? String ?: "",
+                                      fontSize = 13.sp,
+                                      fontWeight = FontWeight.Bold,
+                                      color = Color(0xFF2F2C4F)
+                                  )
+                                  Text(
+                                      text = classData?.get("subject") as? String ?: "",
+                                      fontSize = 10.sp,
+                                      color = Color(0xFF2F2C4F),
+                                      modifier = Modifier.padding(vertical = 2.dp)
+                                  )
+                                  Text(
+                                      text = "${classData?.get("start")} | ${classData?.get("end")}",
+                                      fontSize = 10.sp,
+                                      fontWeight = FontWeight.SemiBold,
+                                      color = Color(0xFF6D2B4F)
+                                  )
+                              }
+                          }
+                          Spacer(modifier = Modifier.padding(vertical = 8.dp))
+                          when (status) {
+                              1 -> Text(
+                                  text = "Well done! Your class is completed",
+                                  fontSize = 12.sp,
+                                  fontWeight = FontWeight.SemiBold,
+                                  color = Color(0xFF07B76B)
+                              )
+                              2 -> Text(
+                                  text = "You canceled this class",
+                                  fontSize = 12.sp,
+                                  fontWeight = FontWeight.SemiBold,
+                                  color = Color(0xFFE50000)
+                              )
+                          }
+                      }
+                  }
+              }
+          }
+      }
+  }
 @Composable
 fun BottomLayoutHistory(){
     Box(modifier = Modifier.fillMaxWidth()){

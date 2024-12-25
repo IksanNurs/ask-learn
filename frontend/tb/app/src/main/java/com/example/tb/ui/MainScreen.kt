@@ -115,7 +115,7 @@ fun ContentScreen(
     when(selectedIndex) {
         0 -> HomePage(navController)
         1 -> AvailableTutor(navController)
-        2 -> BankSoal()
+        2 -> BankSoal(navController)
         3 -> ProfileScreen(navController)
     }
 }

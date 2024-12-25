@@ -40,6 +40,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.example.tb.R
 import com.example.tb.ui.theme.Departemen
 import com.example.tb.ui.theme.biru1
@@ -49,7 +51,7 @@ import com.example.tb.ui.theme.ungu2
 import com.example.tb.viewModel.MataKuliahViewModel
 
 @Composable
-fun BankSoal (){
+fun BankSoal (navController:NavController= rememberNavController()){
     var selectedDepartment by remember { mutableStateOf<Departemen?>(null) }
     var selectedSemester by remember { mutableStateOf<String?>(null) }
 
@@ -60,7 +62,8 @@ fun BankSoal (){
                 Departemen("Computer Science", R.drawable.tekkom),
                 Departemen("Informatics", R.drawable.inform)
             ),
-            onDepartmentClick = { department -> selectedDepartment = department }
+            onDepartmentClick = { department -> selectedDepartment = department },
+            navController
         )
     } else if (selectedSemester == null) {
         SemesterList(
@@ -82,7 +85,7 @@ fun BankSoal (){
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DepertemenList(departemenList: List<Departemen>, onDepartmentClick: (Departemen) -> Unit) {
+fun DepertemenList(departemenList: List<Departemen>, onDepartmentClick: (Departemen) -> Unit, navController:NavController) {
     Scaffold (
         topBar = {
             TopAppBar(
@@ -106,7 +109,7 @@ fun DepertemenList(departemenList: List<Departemen>, onDepartmentClick: (Departe
                     navigationIconContentColor = putih,
                 ),
                 actions = {
-                    IconButton(onClick = { /* TODO */ }) {
+                    IconButton(onClick = { navController.navigate("add_bank_soal")  }) {
                         Icon(
                             painter = painterResource(id = R.drawable.ic_adddoc),
                             contentDescription = null,

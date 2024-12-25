@@ -1,5 +1,5 @@
 'use strict';
-const { Order, Product, User } = require('../models');  // Assuming Order, Product, and User models
+const { Order, Class, User } = require('../models');  // Assuming Order, Class, and User models
 const { validationResult } = require('express-validator');  // Validation imports
 const axios = require('axios');
 
@@ -25,14 +25,14 @@ const createOrder = async (req, res) => {
         return res.status(404).json({ message: `User with ID ${userId} not found` });
       }
   
-      // Fetch the product associated with the given class_id
-      const product = await Product.findByPk(class_id);
-      if (!product) {
-        return res.status(404).json({ message: `Product with ID ${class_id} not found` });
+      // Fetch the classes associated with the given class_id
+      const classes = await Class.findByPk(class_id);
+      if (!classes) {
+        return res.status(404).json({ message: `Class with ID ${class_id} not found` });
       }
   
-      // Fetch the price for the product
-      const price = product.price;
+      // Fetch the price for the classes
+      const price = classes.price;
   
       // Create a new order entry in the database
       const newOrder = await Order.create({
@@ -58,7 +58,7 @@ const createOrder = async (req, res) => {
 const getOrders = async (req, res) => {
   try {
     const userId = req.userId;
-    const { status } = req.query;
+    const { status, class_id } = req.query;
 
     // Basic attributes to retrieve from the orders table
     const orderAttributes = [
@@ -78,9 +78,9 @@ const getOrders = async (req, res) => {
           attributes: ['id', 'username'],
         },
         {
-          model: Product,
-          as: 'product',
-          attributes: ['id', 'name', 'price', 'image'],
+          model: Class,
+          as: 'class',
+          attributes: ['id', 'topic', 'subject', 'start', 'end'],
         },
       ],
     };
@@ -88,6 +88,9 @@ const getOrders = async (req, res) => {
     // Add status condition if status query parameter exists
     if (status) {
       queryOptions.where.status = status.replace(/['"]+/g, '');
+    }
+    if (class_id) {
+      queryOptions.where.class_id = status.replace(/['"]+/g, '');
     }
 
     // Fetch orders based on the query options
@@ -126,8 +129,8 @@ const getOrderById = async (req, res) => {
             attributes: ['id', 'username'],
           },
           {
-            model: Product,
-            as: 'product',  // Sesuaikan alias dengan asosiasi
+            model: Class,
+            as: 'class',  // Sesuaikan alias dengan asosiasi
             attributes: ['id', 'name', 'price', 'image'],
           },
        
@@ -164,9 +167,9 @@ const updateOrder = async (req, res) => {
     const updates = {};
     
     if (class_id !== undefined) {
-      const product = await Product.findByPk(class_id);
-      if (!product) {
-        return res.status(404).json({ message: `Product with ID ${class_id} not found` });
+      const classes = await Class.findByPk(class_id);
+      if (!classes) {
+        return res.status(404).json({ message: `Class with ID ${class_id} not found` });
       }
       updates.class_id = class_id;
     }

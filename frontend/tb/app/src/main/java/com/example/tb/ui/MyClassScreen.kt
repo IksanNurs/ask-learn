@@ -35,7 +35,7 @@ import com.example.tb.ui.theme.ungu2
 
 
 @Composable
-fun MyClassScreen(navController: NavHostController = rememberNavController()) {
+fun MyClassScreen(navController: NavHostController) {
     var selectedTab by remember { mutableStateOf(0) }
     
     Scaffold(
@@ -96,7 +96,7 @@ fun MyClassScreen(navController: NavHostController = rememberNavController()) {
 
             // Content based on selected tab
             when (selectedTab) {
-                0 -> CreateClass()
+                0 -> CreateClass(navController)
                 1 -> ClassDetail(navController)
             }
         }
