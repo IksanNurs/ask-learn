@@ -115,6 +115,7 @@ suspend fun updateOrder(
         @Part("location") location: RequestBody,
         @Part("start") start: RequestBody,
         @Part("end") end: RequestBody,
+        @Part("level") level: RequestBody, 
         @Part khs: MultipartBody.Part?,
         @Header("Authorization") token: String
     ): Response<Map<String, Any>>

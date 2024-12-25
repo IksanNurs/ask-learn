@@ -67,6 +67,7 @@ module.exports = {
         type: Sequelize.DATE,
         allowNull: true,
       },
+      
     });
   },
 

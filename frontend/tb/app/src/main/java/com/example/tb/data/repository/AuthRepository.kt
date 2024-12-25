@@ -343,6 +343,7 @@ suspend fun createClass(
     location: String,
     start: String,
     end: String,
+    level: String,
     khsFile: File?
 ): Boolean {
     return try {
@@ -352,6 +353,7 @@ suspend fun createClass(
         val locationPart = RequestBody.create("text/plain".toMediaTypeOrNull(), location)
         val startPart = RequestBody.create("text/plain".toMediaTypeOrNull(), start)
         val endPart = RequestBody.create("text/plain".toMediaTypeOrNull(), end)
+        val levelPart = RequestBody.create("text/plain".toMediaTypeOrNull(), level)
 
         val khsPart = khsFile?.let {
             val requestFile = RequestBody.create("application/pdf".toMediaTypeOrNull(), it)
@@ -365,6 +367,7 @@ suspend fun createClass(
             location = locationPart,
             start = startPart,
             end = endPart,
+            level = levelPart,
             khs = khsPart,
             token = "Bearer $token"
         )
@@ -375,7 +378,6 @@ suspend fun createClass(
         false
     }
 }
-
 
 suspend fun getClasses(token: String): List<Map<String, Any>>? {
     return try {

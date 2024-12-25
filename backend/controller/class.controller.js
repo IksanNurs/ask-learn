@@ -2,7 +2,7 @@ const { Class, User, Tutor } = require('../models');
 const { validationResult } = require('express-validator');
 
 const createClass = async (req, res) => {
-  const { quota, subject, topic, location } = req.body;
+  const { quota, subject, topic, location, start, end, level } = req.body;
   const user_id = req.userId;
 
   try {
@@ -14,6 +14,7 @@ const createClass = async (req, res) => {
       topic,
       location,
       user_id,
+      level,
       khs: req.file ? req.file.filename : null,
     });
 
@@ -36,11 +37,6 @@ const getClasses = async (req, res) => {
           as: 'user',
           attributes: ['id', 'username']
         },
-        {
-          model: Tutor,
-          as: 'tutors',
-          attributes: ['id', 'name', 'date']
-        }
       ]
     });
 
@@ -89,7 +85,7 @@ const getClassById = async (req, res) => {
 
 const updateClass = async (req, res) => {
   const classId = req.params.id;
-  const { quota, subject, topic, location } = req.body;
+  const { quota, subject, topic, location, start, end, level } = req.body;
 
   try {
     const classData = await Class.findByPk(classId);
@@ -102,8 +98,9 @@ const updateClass = async (req, res) => {
     classData.subject = subject || classData.subject;
     classData.topic = topic || classData.topic;
     classData.location = location || classData.location;
-    classData.start = location || classData.start;
-    classData.end = location || classData.end;
+    classData.start = start || classData.start;
+    classData.end = end || classData.end;
+    classData.level = level || classData.level;
     
     if (req.file) {
       classData.khs = req.file.filename;
